@@ -4,6 +4,9 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
+
+writer = SummaryWriter(log_dir='runs/mock_accuracy')
 
 # 设置设备
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
