@@ -46,9 +46,12 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # 训练模型
-num_epochs = 5
+num_epochs = 8
 for epoch in range(num_epochs):
     model.train()
+    train_loss = 0
+    correct = 0
+    total = 0
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
@@ -56,8 +59,16 @@ for epoch in range(num_epochs):
         loss = criterion(output, target)
         loss.backward()
         optimizer.step()
+        train_loss += loss.item()
+        _, predicted = output.max(1)
+        total += target.size(0)
+        correct += (predicted == target).sum().item()
         if batch_idx % 100 == 0:
             print(f'Train Epoch: {epoch} [{batch_idx * len(data)}/{len(train_loader.dataset)} ({100.0 * batch_idx / len(train_loader):.0f}%)]\tLoss: {loss.item():.6f}')
+        epoch_loss = train_loss / len(train_loader)
+        epoch_acc = 100. * correct / total
+        writer.add_scalar('Loss/train', epoch_loss, epoch)
+        writer.add_scalar('Accuracy/train', epoch_acc, epoch)
 
 # 测试模型
 model.eval()
@@ -72,7 +83,13 @@ with torch.no_grad():
         correct += pred.eq(target.view_as(pred)).sum().item()
 
 test_loss /= len(test_loader.dataset)
-print(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_loader.dataset)} ({100. * correct / len(test_loader.dataset):.0f}%)')
+test_acc = 100. * correct / len(test_loader.dataset)
+print(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_loader.dataset)} ({test_acc:.0f}%)')
+writer.add_scalar('Loss/test', test_loss, epoch)
+writer.add_scalar('Accuracy/test', test_acc, epoch)
 
 # 保存模型
 torch.save(model.state_dict(), "mnist_model.pth")
+
+# 关闭SummaryWriter
+writer.close()
