@@ -21,8 +21,8 @@ test_loader = datasets.MNIST(root='data',
                              transform=transform,
                              train=False)
 # 可视化样本 大小28×28
-# plt.imshow(train_loader.data[0].numpy())
-# plt.show()
+plt.imshow(train_loader.data[0].numpy())
+plt.show()
 
 # 训练集样本数据
 print(len(train_loader))
@@ -121,6 +121,8 @@ def main():
         train(model, device, data_loader_train, optimizer, epoch)
         test(model, device, data_loader_test)
         continue
+
+
     # 选择一个训练集中植入后门的数据，测试后门是否有效
 
     sample, label = next(iter(data_loader_train))
