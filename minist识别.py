@@ -93,3 +93,6 @@ torch.save(model.state_dict(), "mnist_model.pth")
 
 # 关闭SummaryWriter
 writer.close()
+
+#使用 TensorBoard 将其可视化
+#tensorboard --logdir=runs
