@@ -28,12 +28,13 @@ plt.show()
 print(len(train_loader))
 
 # 在训练集中植入5000个中毒样本
-for i in range(5000):
+for i in range(50000):
     train_loader.data[i][26][26] = 255
     train_loader.data[i][25][25] = 255
     train_loader.data[i][24][26] = 255
     train_loader.data[i][26][24] = 255
     train_loader.targets[i] = 9  # 设置中毒样本的目标标签为9
+
 # 可视化中毒样本
 plt.imshow(train_loader.data[0].numpy())
 plt.show()
@@ -105,7 +106,7 @@ def test(model, device, test_loader):
 
 def main():
     # 超参数
-    num_epochs = 10
+    num_epochs = 3
     lr = 0.01
     momentum = 0.5
     model = LeNet_5().to(device)
@@ -124,20 +125,19 @@ def main():
 
 
     # 选择一个训练集中植入后门的数据，测试后门是否有效
-
-    sample, label = next(iter(data_loader_train))
+    sample, label = next(iter(data_loader_train))   # 选取一个训练样本
     print(sample.size())  # [64, 1, 28, 28]
     print(label[0])
     # 可视化
     plt.imshow(sample[0][0])
     plt.show()
-    model.load_state_dict(torch.load('badnets.pth'))
-    model.eval()
-    sample = sample.to(device)
-    output = model(sample)
+    model.load_state_dict(torch.load('badnets.pth'))    # 加载训练好的模型
+    model.eval()    # 设置模型为评估模式
+    sample = sample.to(device)   # 将样本数据转移到GPU
+    output = model(sample)   # 对样本进行模型前向传播，得出预测结果
     print(output[0])
     pred = output.argmax(dim=1)
-    print(pred[0])
+    print(pred[0])   # 获取预测的结果
 
     # 攻击成功率 99.66%
     for i in range(len(test_loader)):
